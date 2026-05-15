@@ -11,6 +11,7 @@ import {
   YAxis,
   CartesianGrid,
 } from "recharts";
+import { createClient } from "@/lib/supabase/browser";
 
 const CHANNELS = [
   { id: "channel-1", name: "Channel 1", views: "420K", likes: "32K", comments: "1.2K", subs: "+1.1K", shares: "2.4K", lastUpload: "2h ago", status: "Healthy" },
@@ -32,6 +33,7 @@ const chartData = [
 
 export default function DashboardPage() {
   const [selectedId, setSelectedId] = useState(CHANNELS[0].id);
+  const [loggingOut, setLoggingOut] = useState(false);
   const channel = useMemo(
     () => CHANNELS.find((c) => c.id === selectedId) ?? CHANNELS[0],
     [selectedId]
@@ -45,11 +47,27 @@ export default function DashboardPage() {
     { label: "Shares", value: channel.shares },
   ];
 
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    window.location.href = "/login";
+  };
+
   return (
     <div className="px-6 py-10">
-      <header className="mb-8">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p className="text-sm text-slate-400">Monitoring Shorts • {channel.name}</p>
+      <header className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <p className="text-sm text-slate-400">Monitoring Shorts • {channel.name}</p>
+        </div>
+        <button
+          onClick={handleLogout}
+          disabled={loggingOut}
+          className="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-100 hover:border-slate-500"
+        >
+          {loggingOut ? "Logging out..." : "Logout"}
+        </button>
       </header>
 
       <div className="mb-6 flex gap-3">
