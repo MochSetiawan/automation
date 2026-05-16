@@ -25,6 +25,8 @@ export default function AdminSection({ mode, title, description }: Props) {
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [mounted, setMounted] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -48,6 +50,8 @@ export default function AdminSection({ mode, title, description }: Props) {
 
   useEffect(() => {
     void load();
+    const t = setTimeout(() => setMounted(true), 20);
+    return () => clearTimeout(t);
   }, []);
 
   const updateLimit = async (id: string, channel_limit: number) => {
@@ -76,8 +80,20 @@ export default function AdminSection({ mode, title, description }: Props) {
     return Math.min(100, Math.round((used / limit) * 100));
   };
 
+  const filteredMembers = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return members;
+    return members.filter((m) =>
+      [m.id, m.role, m.plan].filter(Boolean).join(" ").toLowerCase().includes(q)
+    );
+  }, [members, query]);
+
   return (
-    <div className="space-y-6">
+    <div
+      className={`space-y-6 transition-all duration-300 ${
+        mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+      }`}
+    >
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold">{title}</h1>
@@ -85,6 +101,18 @@ export default function AdminSection({ mode, title, description }: Props) {
         </div>
         <div className="text-xs text-slate-400">
           {new Date().toLocaleDateString()}
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search by ID, role, or plan"
+          className="w-full rounded-xl border border-slate-800 bg-[#0e1422] px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 sm:max-w-sm"
+        />
+        <div className="text-xs text-slate-500">
+          {filteredMembers.length} / {members.length} members
         </div>
       </div>
 
@@ -98,7 +126,7 @@ export default function AdminSection({ mode, title, description }: Props) {
         <div>Loading...</div>
       ) : (
         <div className="space-y-6">
-          {members.map((member) => {
+          {filteredMembers.map((member) => {
             const usagePercent = getUsagePercent(
               member.usage ?? 0,
               member.channel_limit
