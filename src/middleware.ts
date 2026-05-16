@@ -36,13 +36,19 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (pathname.startsWith("/admin")) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", data.user.id)
-      .maybeSingle();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, expires_at")
+    .eq("id", data.user.id)
+    .maybeSingle();
 
+  if (profile?.expires_at && new Date(profile.expires_at) < new Date()) {
+    const url = new URL("/login", request.url);
+    url.searchParams.set("expired", "1");
+    return NextResponse.redirect(url);
+  }
+
+  if (pathname.startsWith("/admin")) {
     if (profile?.role !== "admin") {
       const url = new URL("/", request.url);
       return NextResponse.redirect(url);
