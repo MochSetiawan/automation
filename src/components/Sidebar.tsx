@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { createClient } from "@/lib/supabase/browser";
 
 const menu = [
   { label: "Dashboard", href: "/dashboard", icon: "🏠" },
@@ -13,6 +15,29 @@ const menu = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [email, setEmail] = useState<string | null>(null);
+  const [name, setName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    const loadUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      const user = data.user;
+      setEmail(user?.email ?? null);
+      setName(user?.user_metadata?.full_name ?? user?.user_metadata?.name ?? null);
+    };
+
+    void loadUser();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(() => {
+      void loadUser();
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
   return (
     <aside className="sticky top-0 hidden h-screen w-72 flex-col border-r border-slate-800 bg-[#0d1322] p-5 lg:flex">
@@ -24,6 +49,13 @@ export default function Sidebar() {
         <div>
           <div className="text-sm text-slate-400">YouTube Ops</div>
           <div className="text-lg font-semibold">Dashboard</div>
+          {email ? (
+            <div className="mt-1 text-xs text-slate-400 truncate max-w-[180px]">
+              {name ? `${name} • ${email}` : email}
+            </div>
+          ) : (
+            <div className="mt-1 text-xs text-slate-500">Not logged in</div>
+          )}
         </div>
       </div>
 
