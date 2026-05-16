@@ -1,7 +1,20 @@
+import { redirect } from "next/navigation";
 import BottomNav from "@/components/BottomNav";
 import Sidebar from "@/components/Sidebar";
+import { createClient } from "@/lib/supabase/server";
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default async function AppLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const supabase = await createClient();
+  const { data: userData } = await supabase.auth.getUser();
+
+  if (!userData.user) {
+    redirect("/login");
+  }
+
   return (
     <main className="min-h-screen bg-[#0b0f18] text-slate-100">
       <div className="flex">
