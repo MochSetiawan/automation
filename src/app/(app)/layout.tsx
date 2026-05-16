@@ -16,7 +16,7 @@ export default async function AppLayout({
   }
 
   return (
-    <main className="min-h-screen bg-[#0b0f18] text-slate-100">
+    <main className="min-h-screen bg-[#0b0f18] text-slate-100 pb-20 lg:pb-0">
       <div className="flex">
         <Sidebar />
         <div className="flex-1 px-6 py-8">
