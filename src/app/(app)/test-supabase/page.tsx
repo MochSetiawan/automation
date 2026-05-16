@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { useEffect, useMemo, useState } from "react";
+import { createClient } from "@/lib/supabase/browser";
 
 type Profile = {
   id: string;
@@ -19,6 +19,7 @@ type Status = {
 };
 
 export default function TestSupabasePage() {
+  const supabase = useMemo(() => createClient(), []);
   const [msg, setMsg] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<Status>({
@@ -54,7 +55,7 @@ export default function TestSupabasePage() {
       .from("profiles")
       .select("id, role, channel_limit")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
     const countRes = await supabase
       .from("channels")
@@ -85,7 +86,15 @@ export default function TestSupabasePage() {
 
   useEffect(() => {
     void loadStatus();
-  }, []);
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(() => {
+      void loadStatus();
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, [supabase]);
 
   const signIn = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
