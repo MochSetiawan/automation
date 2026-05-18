@@ -79,34 +79,79 @@ export default function DashboardPage() {
 
   return (
     <div className="px-6 py-10">
-      <header className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-sm text-slate-400">Monitoring Shorts • {channel.name}</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <a
-            href="https://studio.youtube.com"
-            target="_blank"
-            rel="noreferrer"
-            className="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-100 transition hover:border-slate-500"
-          >
-            Lihat Dashboard YouTube
-          </a>
-          {role === "admin" ? (
+      <header className="mb-8 space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Dashboard</h1>
+            <p className="text-sm text-slate-400">
+              Monitoring Shorts • {channel.name}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
             <a
-              href="/admin"
-              className="rounded-lg bg-sky-500/20 px-4 py-2 text-sm font-semibold text-sky-200 transition hover:bg-sky-500/30"
+              href="https://studio.youtube.com"
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-100 transition hover:border-slate-500"
             >
-              Admin
+              Lihat Dashboard YouTube
             </a>
-          ) : null}
-          <button
-            onClick={handleLogout}
-            disabled={loggingOut}
-            className="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-100 hover:border-slate-500"
-          >
-            {loggingOut ? "Logging out..." : "Logout"}
+            {role === "admin" ? (
+              <a
+                href="/admin"
+                className="rounded-lg bg-sky-500/20 px-4 py-2 text-sm font-semibold text-sky-200 transition hover:bg-sky-500/30"
+              >
+                Admin
+              </a>
+            ) : null}
+            <button
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-100 hover:border-slate-500"
+            >
+              {loggingOut ? "Logging out..." : "Logout"}
+            </button>
+          </div>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <button className="group rounded-2xl border border-slate-800 bg-[#121826] p-4 text-left transition hover:-translate-y-0.5 hover:border-sky-500/60 hover:shadow-[0_12px_30px_rgba(56,189,248,0.15)]">
+            <div className="text-xs text-slate-400">Quick Action</div>
+            <div className="mt-1 text-lg font-semibold text-slate-100">
+              Upload Video
+            </div>
+            <p className="mt-1 text-xs text-slate-500">
+              Mulai upload baru ke channel terpilih.
+            </p>
+            <div className="mt-3 text-xs font-semibold text-sky-300 group-hover:text-sky-200">
+              + Upload Baru
+            </div>
+          </button>
+
+          <button className="group rounded-2xl border border-slate-800 bg-[#121826] p-4 text-left transition hover:-translate-y-0.5 hover:border-emerald-500/60 hover:shadow-[0_12px_30px_rgba(16,185,129,0.15)]">
+            <div className="text-xs text-slate-400">Quick Action</div>
+            <div className="mt-1 text-lg font-semibold text-slate-100">
+              Sync Analytics
+            </div>
+            <p className="mt-1 text-xs text-slate-500">
+              Tarik data terbaru dari YouTube Studio.
+            </p>
+            <div className="mt-3 text-xs font-semibold text-emerald-300 group-hover:text-emerald-200">
+              Jalankan Sync
+            </div>
+          </button>
+
+          <button className="group rounded-2xl border border-slate-800 bg-[#121826] p-4 text-left transition hover:-translate-y-0.5 hover:border-indigo-500/60 hover:shadow-[0_12px_30px_rgba(99,102,241,0.15)]">
+            <div className="text-xs text-slate-400">Quick Action</div>
+            <div className="mt-1 text-lg font-semibold text-slate-100">
+              Connect Channel
+            </div>
+            <p className="mt-1 text-xs text-slate-500">
+              Hubungkan channel baru ke akun kamu.
+            </p>
+            <div className="mt-3 text-xs font-semibold text-indigo-300 group-hover:text-indigo-200">
+              Tambah Channel
+            </div>
           </button>
         </div>
       </header>
