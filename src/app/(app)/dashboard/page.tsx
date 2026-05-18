@@ -35,6 +35,12 @@ type Profile = {
   role?: "admin" | "member" | string | null;
 };
 
+const statusStyles: Record<string, string> = {
+  Healthy: "bg-emerald-500/15 text-emerald-300",
+  Warning: "bg-amber-500/15 text-amber-300",
+  Idle: "bg-slate-500/15 text-slate-300",
+};
+
 export default function DashboardPage() {
   const [selectedId, setSelectedId] = useState(CHANNELS[0].id);
   const [loggingOut, setLoggingOut] = useState(false);
@@ -156,22 +162,62 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <div className="mb-6 flex gap-3">
-        <select
-          value={selectedId}
-          onChange={(e) => setSelectedId(e.target.value)}
-          className="rounded-lg border border-slate-800 bg-[#0e1422] px-3 py-2 text-sm text-slate-100 outline-none"
-        >
-          {CHANNELS.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
-        <button className="rounded-lg bg-gradient-to-r from-sky-400 to-blue-600 px-4 py-2 text-sm font-semibold text-[#06121c]">
-          + Upload Baru
-        </button>
-      </div>
+      <section className="mb-6 space-y-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-lg font-semibold">Channel Switcher</h2>
+            <p className="text-xs text-slate-500">
+              Pilih channel untuk melihat performa dan upload.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-500">Channel aktif:</span>
+            <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-200">
+              {channel.name}
+            </span>
+          </div>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {CHANNELS.map((c) => {
+            const isActive = c.id === selectedId;
+            return (
+              <button
+                key={c.id}
+                onClick={() => setSelectedId(c.id)}
+                className={`rounded-2xl border p-4 text-left transition ${
+                  isActive
+                    ? "border-sky-500/60 bg-sky-500/10"
+                    : "border-slate-800 bg-[#121826] hover:border-slate-600"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-semibold text-slate-100">
+                      {c.name}
+                    </div>
+                    <div className="text-xs text-slate-500">
+                      Last upload {c.lastUpload}
+                    </div>
+                  </div>
+                  <span
+                    className={`rounded-full px-2 py-1 text-[10px] ${
+                      statusStyles[c.status] ?? "bg-slate-500/15 text-slate-300"
+                    }`}
+                  >
+                    {c.status}
+                  </span>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2 text-[10px] text-slate-400">
+                  <span>Views: {c.views}</span>
+                  <span>Likes: {c.likes}</span>
+                  <span>Subs: {c.subs}</span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </section>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {stats.map((s) => (
