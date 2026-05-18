@@ -41,6 +41,14 @@ const statusStyles: Record<string, string> = {
   Idle: "bg-slate-500/15 text-slate-300",
 };
 
+const statsTrend = [
+  { label: "Views", delta: "+12%", tone: "text-emerald-300" },
+  { label: "Likes", delta: "+8%", tone: "text-emerald-300" },
+  { label: "Comments", delta: "-3%", tone: "text-rose-300" },
+  { label: "Subscribers", delta: "+6%", tone: "text-emerald-300" },
+  { label: "Shares", delta: "+10%", tone: "text-emerald-300" },
+];
+
 export default function DashboardPage() {
   const [selectedId, setSelectedId] = useState(CHANNELS[0].id);
   const [loggingOut, setLoggingOut] = useState(false);
@@ -220,12 +228,38 @@ export default function DashboardPage() {
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {stats.map((s) => (
-          <div key={s.label} className="rounded-xl border border-slate-800 bg-[#121826] p-4">
-            <div className="text-xs text-slate-400">{s.label}</div>
-            <div className="mt-2 text-xl font-bold">{s.value}</div>
-          </div>
-        ))}
+        {stats.map((s) => {
+          const trend = statsTrend.find((t) => t.label === s.label);
+          return (
+            <div
+              key={s.label}
+              className="rounded-2xl border border-slate-800 bg-[#121826] p-4 transition hover:-translate-y-0.5 hover:border-slate-600"
+            >
+              <div className="flex items-center justify-between">
+                <div className="text-xs text-slate-400">{s.label}</div>
+                {trend ? (
+                  <span
+                    className={`rounded-full bg-slate-800 px-2 py-0.5 text-[10px] ${
+                      trend.tone
+                    }`}
+                  >
+                    {trend.delta}
+                  </span>
+                ) : null}
+              </div>
+              <div className="mt-2 text-xl font-bold">{s.value}</div>
+              <div className="mt-3 h-1.5 w-full rounded-full bg-slate-800">
+                <div
+                  className="h-1.5 rounded-full bg-sky-400"
+                  style={{ width: "70%" }}
+                />
+              </div>
+              <div className="mt-2 text-[10px] text-slate-500">
+                Update 7 hari terakhir
+              </div>
+            </div>
+          );
+        })}
       </section>
 
       <section className="mt-6 rounded-xl border border-slate-800 bg-[#121826] p-4">
