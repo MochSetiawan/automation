@@ -6,12 +6,12 @@ type Member = {
   id: string;
   role: "admin" | "member" | string;
   channel_limit: number | null;
-  plan?: "free" | "pro" | "business" | string | null;
+  plan?: "pro" | "business" | string | null;
   expires_at?: string | null;
   usage?: number | null;
 };
 
-const PLAN_OPTIONS = ["free", "pro", "business"];
+const PLAN_OPTIONS = ["pro", "business"];
 
 type Mode = "plan" | "limit" | "usage" | "expiry";
 
@@ -54,19 +54,35 @@ export default function AdminSection({ mode, title, description }: Props) {
     return () => clearTimeout(t);
   }, []);
 
-  const updateLimit = async (id: string, channel_limit: number) => {
+  const updateMember = async (id: string, payload: Record<string, unknown>) => {
     setError(null);
     const res = await fetch("/api/admin/members", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, channel_limit }),
+      body: JSON.stringify({ id, ...payload }),
     });
     const json = await res.json();
     if (!res.ok) {
-      setError(json.error || "Failed to update limit");
+      setError(json.error || "Failed to update member");
     } else {
       await load();
     }
+  };
+
+  const updateLimit = async (id: string, channel_limit: number) => {
+    await updateMember(id, { channel_limit });
+  };
+
+  const updatePlan = async (id: string, plan: string) => {
+    await updateMember(id, { plan });
+  };
+
+  const updateExpiry = async (id: string, expires_at: string | null) => {
+    await updateMember(id, { expires_at });
+  };
+
+  const updateUsage = async (id: string, usage: number) => {
+    await updateMember(id, { usage });
   };
 
   const now = useMemo(() => new Date(), []);
@@ -170,10 +186,8 @@ export default function AdminSection({ mode, title, description }: Props) {
                       <div className="text-xs text-slate-400">Plan</div>
                       <select
                         className="mt-2 w-full rounded border border-slate-700 bg-[#0e1422] px-2 py-2 text-sm"
-                        value={member.plan ?? "free"}
-                        onChange={() => {
-                          setError("Update plan: backend belum dibuat.");
-                        }}
+                        value={member.plan ?? "pro"}
+                        onChange={(e) => updatePlan(member.id, e.target.value)}
                       >
                         {PLAN_OPTIONS.map((plan) => (
                           <option key={plan} value={plan}>
@@ -182,7 +196,7 @@ export default function AdminSection({ mode, title, description }: Props) {
                         ))}
                       </select>
                       <div className="mt-2 text-[10px] text-slate-500">
-                        Backend segera dibuat
+                        Limit otomatis: pro=5, business=10
                       </div>
                     </div>
                   ) : null}
@@ -221,6 +235,20 @@ export default function AdminSection({ mode, title, description }: Props) {
                       <div className="mt-2 text-xs text-slate-400">
                         {(member.usage ?? 0).toString()} / {member.channel_limit ?? "-"}
                       </div>
+                      <div className="mt-3 flex items-center gap-2">
+                        <input
+                          type="number"
+                          min={0}
+                          value={member.usage ?? 0}
+                          onChange={(e) =>
+                            updateUsage(member.id, Number(e.target.value))
+                          }
+                          className="w-28 rounded border border-slate-700 bg-[#0e1422] px-2 py-1 text-xs"
+                        />
+                        <span className="text-[10px] text-slate-500">
+                          Edit manual
+                        </span>
+                      </div>
                     </div>
                   ) : null}
 
@@ -231,12 +259,15 @@ export default function AdminSection({ mode, title, description }: Props) {
                         type="date"
                         className="mt-2 w-full rounded border border-slate-700 bg-[#0e1422] px-2 py-2 text-sm"
                         value={member.expires_at?.slice(0, 10) ?? ""}
-                        onChange={() => {
-                          setError("Update expiry: backend belum dibuat.");
-                        }}
+                        onChange={(e) =>
+                          updateExpiry(
+                            member.id,
+                            e.target.value ? e.target.value : null
+                          )
+                        }
                       />
                       <div className="mt-2 text-[10px] text-slate-500">
-                        Backend segera dibuat
+                        Kosongkan untuk non-expired
                       </div>
                     </div>
                   ) : null}
