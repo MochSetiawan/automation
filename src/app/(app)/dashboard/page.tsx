@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   LineChart,
@@ -31,9 +31,14 @@ const chartData = [
   { day: "Sun", views: 70 },
 ];
 
+type Profile = {
+  role?: "admin" | "member" | string | null;
+};
+
 export default function DashboardPage() {
   const [selectedId, setSelectedId] = useState(CHANNELS[0].id);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [role, setRole] = useState<Profile["role"]>(null);
   const channel = useMemo(
     () => CHANNELS.find((c) => c.id === selectedId) ?? CHANNELS[0],
     [selectedId]
@@ -46,6 +51,24 @@ export default function DashboardPage() {
     { label: "Subscribers", value: channel.subs },
     { label: "Shares", value: channel.shares },
   ];
+
+  useEffect(() => {
+    const loadRole = async () => {
+      const supabase = createClient();
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) return;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", userData.user.id)
+        .maybeSingle();
+
+      setRole(profile?.role ?? null);
+    };
+
+    void loadRole();
+  }, []);
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -61,13 +84,31 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-bold">Dashboard</h1>
           <p className="text-sm text-slate-400">Monitoring Shorts • {channel.name}</p>
         </div>
-        <button
-          onClick={handleLogout}
-          disabled={loggingOut}
-          className="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-100 hover:border-slate-500"
-        >
-          {loggingOut ? "Logging out..." : "Logout"}
-        </button>
+        <div className="flex flex-wrap items-center gap-3">
+          <a
+            href="https://studio.youtube.com"
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-100 transition hover:border-slate-500"
+          >
+            Lihat Dashboard YouTube
+          </a>
+          {role === "admin" ? (
+            <a
+              href="/admin"
+              className="rounded-lg bg-sky-500/20 px-4 py-2 text-sm font-semibold text-sky-200 transition hover:bg-sky-500/30"
+            >
+              Admin
+            </a>
+          ) : null}
+          <button
+            onClick={handleLogout}
+            disabled={loggingOut}
+            className="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-100 hover:border-slate-500"
+          >
+            {loggingOut ? "Logging out..." : "Logout"}
+          </button>
+        </div>
       </header>
 
       <div className="mb-6 flex gap-3">

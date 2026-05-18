@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/browser";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -20,7 +20,7 @@ export default function LoginPage() {
 
   const expiredMessage = useMemo(() => EXPIRED_MESSAGES[0], []);
 
-  useEffect(() => {
+  useMemo(() => {
     const expired = searchParams?.get("expired");
     if (expired === "1") {
       setMsg(expiredMessage);
@@ -34,8 +34,33 @@ export default function LoginPage() {
       email,
       password,
     });
-    if (error) setMsg(error.message);
-    else router.push("/");
+
+    if (error) {
+      setMsg(error.message);
+      setLoading(false);
+      return;
+    }
+
+    const { data: userData } = await supabase.auth.getUser();
+    const user = userData.user;
+
+    if (!user) {
+      router.push("/");
+      return;
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profile?.role === "admin") {
+      router.push("/admin");
+    } else {
+      router.push("/");
+    }
+
     setLoading(false);
   };
 
