@@ -31,6 +31,41 @@ const chartData = [
   { day: "Sun", views: 70 },
 ];
 
+const uploads = [
+  {
+    id: "up-1",
+    title: "Shorts: Tips Editing Cepat",
+    channel: "Channel 1",
+    status: "Published",
+    createdAt: "2026-05-17 09:40",
+    link: "https://youtube.com",
+  },
+  {
+    id: "up-2",
+    title: "Tutorial Upload Automasi",
+    channel: "Channel 2",
+    status: "Processing",
+    createdAt: "2026-05-17 08:05",
+    link: "https://youtube.com",
+  },
+  {
+    id: "up-3",
+    title: "Shorts Viral: 3 Detik",
+    channel: "Channel 3",
+    status: "Scheduled",
+    createdAt: "2026-05-16 22:30",
+    link: "https://youtube.com",
+  },
+  {
+    id: "up-4",
+    title: "Review Growth Mingguan",
+    channel: "Channel 4",
+    status: "Failed",
+    createdAt: "2026-05-16 19:10",
+    link: "https://youtube.com",
+  },
+];
+
 type Profile = {
   role?: "admin" | "member" | string | null;
 };
@@ -39,6 +74,13 @@ const statusStyles: Record<string, string> = {
   Healthy: "bg-emerald-500/15 text-emerald-300",
   Warning: "bg-amber-500/15 text-amber-300",
   Idle: "bg-slate-500/15 text-slate-300",
+};
+
+const uploadStatusStyles: Record<string, string> = {
+  Published: "bg-emerald-500/15 text-emerald-300",
+  Processing: "bg-sky-500/15 text-sky-300",
+  Scheduled: "bg-indigo-500/15 text-indigo-300",
+  Failed: "bg-rose-500/15 text-rose-300",
 };
 
 const statsTrend = [
@@ -274,6 +316,71 @@ export default function DashboardPage() {
               <Line type="monotone" dataKey="views" stroke="#38bdf8" strokeWidth={3} dot={{ r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
+        </div>
+      </section>
+
+      <section className="mt-6 rounded-xl border border-slate-800 bg-[#121826] p-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-lg font-semibold">Upload History</h2>
+            <p className="text-xs text-slate-500">
+              Riwayat upload terakhir dari semua channel.
+            </p>
+          </div>
+          <button className="rounded-lg border border-slate-700 px-3 py-2 text-xs text-slate-200 hover:border-slate-500">
+            Lihat Semua
+          </button>
+        </div>
+
+        <div className="mt-4 overflow-hidden rounded-xl border border-slate-800">
+          <div className="grid grid-cols-12 gap-2 bg-[#0f1524] px-4 py-3 text-[11px] uppercase tracking-wide text-slate-500">
+            <div className="col-span-5">Video</div>
+            <div className="col-span-2">Channel</div>
+            <div className="col-span-2">Status</div>
+            <div className="col-span-2">Upload</div>
+            <div className="col-span-1 text-right">Link</div>
+          </div>
+          <div className="divide-y divide-slate-800">
+            {uploads.map((item) => (
+              <div
+                key={item.id}
+                className="grid grid-cols-12 items-center gap-2 px-4 py-3 text-sm text-slate-200 transition hover:bg-slate-900/40"
+              >
+                <div className="col-span-5">
+                  <div className="font-medium text-slate-100">
+                    {item.title}
+                  </div>
+                  <div className="text-xs text-slate-500">{item.id}</div>
+                </div>
+                <div className="col-span-2 text-xs text-slate-300">
+                  {item.channel}
+                </div>
+                <div className="col-span-2">
+                  <span
+                    className={`rounded-full px-2 py-1 text-[10px] ${
+                      uploadStatusStyles[item.status] ??
+                      "bg-slate-500/15 text-slate-300"
+                    }`}
+                  >
+                    {item.status}
+                  </span>
+                </div>
+                <div className="col-span-2 text-xs text-slate-400">
+                  {item.createdAt}
+                </div>
+                <div className="col-span-1 text-right">
+                  <a
+                    href={item.link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-xs text-sky-300 hover:text-sky-200"
+                  >
+                    View
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     </div>
